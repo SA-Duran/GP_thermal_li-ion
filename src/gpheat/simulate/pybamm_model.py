@@ -14,11 +14,12 @@ def _initial_concentrations_for_mode(param: pybamm.ParameterValues, mode: str) -
         param["Initial concentration in negative electrode [mol.m-3]"] = 22400
         param["Initial concentration in positive electrode [mol.m-3]"] = 27300
 
-def _solve_once(param: pybamm.ParameterValues, experiment, durations_s):
+def _solve_once(param: pybamm.ParameterValues, experiment):
     model = pybamm.lithium_ion.SPMe({"thermal": "lumped"}, name="lumped thermal model")
-    sim = pybamm.Simulation(model, parameter_values=param, experiment=experiment)
+    solver = pybamm.CasadiSolver()
+    sim = pybamm.Simulation(model, parameter_values=param, experiment=experiment, solver=solver)
     try:
-        sol = sim.solve(durations_s)
+        sol = sim.solve()
         return sol
     except Exception as e:
         print(f"Simulation failed: {e}")
@@ -36,10 +37,10 @@ def run_experiment_grid(cfg: Dict[str, Any]) -> List[list]:
     temps = cfg["grid"]["temperatures_C"]
     modes = cfg["grid"]["modes"]
     c_rates = cfg["grid"]["c_rates"]
-    dur = cfg["experiment"]["durations_s"]
     stop_v_charge = cfg["experiment"]["stop_voltage_charge"]
     stop_v_discharge = cfg["experiment"]["stop_voltage_discharge"]
-
+    duration_s=cfg["experiment"]["durations_s"]
+    
     rows: List[list] = []
     for tempC in temps:
         for c_rate in c_rates:
@@ -51,13 +52,14 @@ def run_experiment_grid(cfg: Dict[str, Any]) -> List[list]:
                 h = param.get("Total heat transfer coefficient [W.m-2.K-1]")
 
                 stop_v = stop_v_charge if mode == "Charge" else stop_v_discharge
-                logger.info(f"Starting experiment grid simulation: {mode} at {c_rate}C until {stop_v} V")
+                
+                logger.info(f"Starting experiment grid simulation: {tempC}°C, {mode} at {c_rate}C until {stop_v} V")
                 step_str = f"{mode} at {c_rate}C until {stop_v} V"
-                experiment = pybamm.Experiment([step_str])
+                experiment = pybamm.Experiment([step_str], period=duration_s)
 
                 _initial_concentrations_for_mode(param, mode)
 
-                sol = _solve_once(param, experiment, dur)
+                sol = _solve_once(param, experiment)
                 if sol is None:
                     continue
 

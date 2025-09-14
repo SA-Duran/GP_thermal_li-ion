@@ -9,14 +9,19 @@ paths:
 
 experiment:
   seed: 42
-  durations_s: [0, 3600]          # time span for PyBaMM solve
+  durations_s: "60 seconds"   # time span for PyBaMM solve
   stop_voltage_charge: 4.1
   stop_voltage_discharge: 3.105
 
 grid:
   temperatures_C: [0, 15, 30, 45]
   modes: ["Charge", "Discharge"]
+  charge_mode: ["Charge"]
+  discharge_mode: ["Discharge"]
   c_rates: [0.125, 0.25, 0.5, 0.75, 1.0]
 
 dataset:
   name: "tspm_grid_v4_0.csv"      # output CSV file name in artifacts/datasets
+  charge_name: "tspm_grid_v4_0_charge.csv"      # output CSV file name in artifacts/datasets
+  discharge_name: "tspm_grid_v4_0_discharge.csv"      # output CSV file name in artifacts/datasets
+  

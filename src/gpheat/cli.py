@@ -27,6 +27,16 @@ def gen_data(config: str, root: str):
     paths = get_paths(cfg, root)
     out_csv = generate_and_save(cfg, paths)
     click.echo(f"Dataset written to: {out_csv}")
+    
+    cfg["grid"]["modes"]=cfg["grid"]["charge_mode"]
+    cfg["dataset"]["name"]=cfg["dataset"]["charge_name"]
+    charge_csv = generate_and_save(cfg, paths)
+    click.echo(f"Dataset written to: {charge_csv}")
+    
+    cfg["grid"]["modes"]=cfg["grid"]["discharge_mode"]
+    cfg["dataset"]["name"]=cfg["dataset"]["discharge_name"]
+    discharge_csv = generate_and_save(cfg, paths)
+    click.echo(f"Dataset written to: {discharge_csv}")
 
 if __name__ == "__main__":
     cli()

@@ -10,3 +10,4 @@ torch
 click
 dvc
 mlflow<3
+gpy

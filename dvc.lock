@@ -5,19 +5,19 @@ stages:
     deps:
     - path: config/config.yaml
       hash: md5
-      md5: b63ef73e18bca7c18e97b7575401734b
-      size: 555
+      md5: b8f4838ec09666464d689fbfdc25d263
+      size: 809
     - path: src/gpheat/experiments/generate_data.py
       hash: md5
       md5: 491dbbce799cb67959b30b4a246d35ef
       size: 2863
     - path: src/gpheat/simulate/pybamm_model.py
       hash: md5
-      md5: a81180bb170992241f145845904d7477
-      size: 8389
+      md5: 44a64f969b1ea807ebc90c025921e35a
+      size: 8467
     outs:
     - path: artifacts/datasets
       hash: md5
-      md5: f66d8e50927e59f60d23b47dbd26d6bc.dir
-      size: 2141232
-      nfiles: 1
+      md5: 146daeb2707e69337deb7ae4f7ec8e1c.dir
+      size: 17566823
+      nfiles: 3

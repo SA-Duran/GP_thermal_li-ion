@@ -20,7 +20,8 @@ dependencies = [
     "torch",
     "click",
     "dvc",
-    "mlflow<3"
+    "mlflow<3",
+    "gpy"
 ]
 
 
