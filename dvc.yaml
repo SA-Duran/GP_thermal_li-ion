@@ -7,11 +7,70 @@ stages:
       - src/gpheat/experiments/generate_data.py
     outs:
       - artifacts/datasets
-  train:
-    cmd: python -m gpheat.cli run --config config/config.yaml --root .
+  gpy_fit_charge:
+    cmd: set PYTHONPATH=src && python -m gpheat.cli fit-gpy --mode charge --no-optimize 
+    deps:  
+      - config/config.yaml
+      - src/gpheat/models/gpy_gp.py
+      - src/gpheat/models/checkpoints.py
+      - src/gpheat/plot/gpy_results.py
+      - artifacts/datasets
+    outs:
+      - artifacts/models/charge_gpy.pkl
+      #- reports/figures/charge_gpy_train_dt_dt.png
+      #- reports/figures/charge_gpy_train_qrev.png
+
+  gpy_fit_discharge:
+    cmd: set PYTHONPATH=src && python -m gpheat.cli fit-gpy --mode discharge --no-optimize 
     deps:
       - config/config.yaml
-      - src/gpheat
+      - src/gpheat/models/gpy_gp.py
+      - src/gpheat/models/checkpoints.py
+      - src/gpheat/plot/gpy_results.py
+      - artifacts/datasets
     outs:
-      - reports/metrics.json
-      - reports/figures/prediction_test.png
+      - artifacts/models/discharge_gpy.pkl
+      #- reports/figures/discharge_gpy_train_dt_dt.png
+      #- reports/figures/discharge_gpy_train_qrev.png
+
+  test_data:
+    cmd: set PYTHONPATH=src && python -m gpheat.cli make-test --config config/config.yaml --root .
+    deps:
+      - config/config.yaml
+      - src/gpheat/utils/experiments.py
+      - src/gpheat/experiments/make_test_sets.py
+      - src/gpheat/simulate/pybamm_model.py
+      - src/gpheat/experiments/generate_data.py
+    outs:
+      - artifacts/test/charge_test.csv
+      - artifacts/test/discharge_test.csv
+
+  eval_charge:
+    cmd: set PYTHONPATH=src && python -m gpheat.cli eval-gpy --mode charge
+    deps:
+      - config/config.yaml
+      - artifacts/test/charge_test.csv
+      - artifacts/models/charge_gpy.pkl
+      - src/gpheat/evaluation/eval_gpy.py
+      - src/gpheat/data/slicing.py
+      - src/gpheat/plot/gpy_results.py
+      - src/gpheat/utils/physics.py
+      - src/gpheat/models/checkpoints.py
+      - src/gpheat/models/gpy_gp.py
+    outs:
+      - reports/eval/charge
+
+  eval_discharge:
+    cmd: set PYTHONPATH=src && python -m gpheat.cli eval-gpy --mode discharge
+    deps:
+      - config/config.yaml
+      - artifacts/test/discharge_test.csv
+      - artifacts/models/discharge_gpy.pkl
+      - src/gpheat/evaluation/eval_gpy.py
+      - src/gpheat/data/slicing.py
+      - src/gpheat/plot/gpy_results.py
+      - src/gpheat/utils/physics.py
+      - src/gpheat/models/checkpoints.py
+      - src/gpheat/models/gpy_gp.py
+    outs:
+      - reports/eval/discharge

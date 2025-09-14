@@ -6,6 +6,8 @@ paths:
   reports_dir: reports
   figures_dir: reports/figures
   metrics_file: reports/metrics.json
+  models_dir: artifacts/models   
+  test_dir: artifacts/test    
 
 experiment:
   seed: 42
@@ -25,3 +27,54 @@ dataset:
   charge_name: "tspm_grid_v4_0_charge.csv"      # output CSV file name in artifacts/datasets
   discharge_name: "tspm_grid_v4_0_discharge.csv"      # output CSV file name in artifacts/datasets
   
+gpy:
+  dataset:
+    charge_csv: artifacts/datasets/tspm_grid_v4_0_charge.csv      # (use your charge CSV path)
+    discharge_csv: artifacts/datasets/tspm_grid_v4_0_discharge.csv   # (use your discharge CSV path)
+  features:
+    - "Terminal voltage time derivative [V/s]"
+    - "Reaction overpotential time derivative [V/s]"
+    - "Electrode concentration overpotential time derivative [V/s]"
+    - "Electrolyte concentration overpotential time derivative [V/s]"
+    - "Electrolyte ohmic overpotential time derivative [V/s]"
+  target: "Model temperature time derivative [K/s]"
+
+  # Fixed, best-known hyperparams for a first run
+  charge_fixed:
+    kV_lengthscale: 6.4e-4
+    kV_variance: 1.0
+    k1_lengthscales: [2.5e-5, 1.0e-4, 1.8e-4, 9.0e-7]
+    k1_variance: 1.0e-5
+    noise_variance: 0.0
+
+  discharge_fixed:
+    kV_lengthscale: 4.0e-3
+    kV_variance: 1.0
+    k1_lengthscales: [2.9e-5, 1.9e-3, 8.0e-5, 1.0e-6]
+    k1_variance: 1.0e-5
+    noise_variance: 0.0
+
+  # Bounds for a quick local search (later you can derive from training-set ranges)
+  search_bounds:
+    kV_lengthscale: [1e-6, 1e-1]
+    kV_variance:    [1e-6, 1.0]
+    k1_lengthscales: [[1e-6, 1e-1], [1e-6, 1e-1], [1e-6, 1e-1], [1e-8, 1e-2]]
+    k1_variance:    [1e-8, 1e-1]
+    noise_variance: [0.0, 1e-4]   # keep tiny if you want “almost exact”
+
+  models:
+    charge: "charge_gpy.pkl"              # default saved model name
+    discharge: "discharge_gpy.pkl"
+
+test_conditions:
+  # Each item: {mode, c_rate, temperature_C}
+  charge:
+    - { mode: "Charge",    c_rate: 0.3333333333, temperature_C: 10 }   # 1/3 C @ 10°C
+    - { mode: "Charge",    c_rate: 0.4,         temperature_C: 35 }
+    - { mode: "Charge",    c_rate: 0.6666666667, temperature_C: 20 }   # 2/3 C @ 20°C
+    - { mode: "Charge",    c_rate: 1.1,         temperature_C: 50 }
+  discharge:
+    - { mode: "Discharge", c_rate: 0.1,  temperature_C: 50 }
+    - { mode: "Discharge", c_rate: 0.4,  temperature_C: 20 }
+    - { mode: "Discharge", c_rate: 0.9,  temperature_C: 35 }
+    - { mode: "Discharge", c_rate: 1.0,  temperature_C: 10 }

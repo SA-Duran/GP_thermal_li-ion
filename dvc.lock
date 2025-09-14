@@ -5,8 +5,8 @@ stages:
     deps:
     - path: config/config.yaml
       hash: md5
-      md5: b8f4838ec09666464d689fbfdc25d263
-      size: 809
+      md5: d3beae4ec20de2bfcb4bc61d1ea1fbd3
+      size: 2998
     - path: src/gpheat/experiments/generate_data.py
       hash: md5
       md5: 491dbbce799cb67959b30b4a246d35ef
@@ -21,3 +21,186 @@ stages:
       md5: 146daeb2707e69337deb7ae4f7ec8e1c.dir
       size: 17566823
       nfiles: 3
+  gpy_fit_charge:
+    cmd: set PYTHONPATH=src && python -m gpheat.cli fit-gpy --mode charge 
+      --no-optimize
+    deps:
+    - path: artifacts/datasets
+      hash: md5
+      md5: 146daeb2707e69337deb7ae4f7ec8e1c.dir
+      size: 17566823
+      nfiles: 3
+    - path: config/config.yaml
+      hash: md5
+      md5: d3beae4ec20de2bfcb4bc61d1ea1fbd3
+      size: 2998
+    - path: src/gpheat/models/checkpoints.py
+      hash: md5
+      md5: af9df723b3edfbad27dbc0edf6592cc5
+      size: 503
+    - path: src/gpheat/models/gpy_gp.py
+      hash: md5
+      md5: 172ae9db43e4d1f0155b7ce39432bb55
+      size: 3472
+    - path: src/gpheat/plot/gpy_results.py
+      hash: md5
+      md5: 33cfaa8946155733134528a8fdd59fba
+      size: 2501
+    outs:
+    - path: artifacts/models/charge_gpy.pkl
+      hash: md5
+      md5: 3e378cd4a9b6dcbc10c83fb18eafdc59
+      size: 527531328
+  gpy_fit_discharge:
+    cmd: set PYTHONPATH=src && python -m gpheat.cli fit-gpy --mode discharge 
+      --no-optimize
+    deps:
+    - path: artifacts/datasets
+      hash: md5
+      md5: 146daeb2707e69337deb7ae4f7ec8e1c.dir
+      size: 17566823
+      nfiles: 3
+    - path: config/config.yaml
+      hash: md5
+      md5: d3beae4ec20de2bfcb4bc61d1ea1fbd3
+      size: 2998
+    - path: src/gpheat/models/checkpoints.py
+      hash: md5
+      md5: af9df723b3edfbad27dbc0edf6592cc5
+      size: 503
+    - path: src/gpheat/models/gpy_gp.py
+      hash: md5
+      md5: 172ae9db43e4d1f0155b7ce39432bb55
+      size: 3472
+    - path: src/gpheat/plot/gpy_results.py
+      hash: md5
+      md5: 33cfaa8946155733134528a8fdd59fba
+      size: 2501
+    outs:
+    - path: artifacts/models/discharge_gpy.pkl
+      hash: md5
+      md5: 0334ba4c175fef7c6e0650248ff3c92b
+      size: 548437408
+  test_data:
+    cmd: set PYTHONPATH=src && python -m gpheat.cli make-test --config 
+      config/config.yaml --root .
+    deps:
+    - path: config/config.yaml
+      hash: md5
+      md5: d3beae4ec20de2bfcb4bc61d1ea1fbd3
+      size: 2998
+    - path: src/gpheat/experiments/generate_data.py
+      hash: md5
+      md5: 491dbbce799cb67959b30b4a246d35ef
+      size: 2863
+    - path: src/gpheat/experiments/make_test_sets.py
+      hash: md5
+      md5: 96ed93258d904d8db5e226b05e87484e
+      size: 1078
+    - path: src/gpheat/simulate/pybamm_model.py
+      hash: md5
+      md5: 44a64f969b1ea807ebc90c025921e35a
+      size: 8467
+    - path: src/gpheat/utils/experiments.py
+      hash: md5
+      md5: 5b219b0cd82511353c079de3049bafb7
+      size: 1300
+    outs:
+    - path: artifacts/test/charge_test.csv
+      hash: md5
+      md5: 6fe4443d699a3c4a3943bab236dad875
+      size: 2143883
+    - path: artifacts/test/discharge_test.csv
+      hash: md5
+      md5: def1be54c4cd536fd743e4f2e5facd8d
+      size: 4031784
+  eval_charge:
+    cmd: set PYTHONPATH=src && python -m gpheat.cli eval-gpy --mode charge
+    deps:
+    - path: artifacts/models/charge_gpy.pkl
+      hash: md5
+      md5: 3e378cd4a9b6dcbc10c83fb18eafdc59
+      size: 527531328
+    - path: artifacts/test/charge_test.csv
+      hash: md5
+      md5: 6fe4443d699a3c4a3943bab236dad875
+      size: 2143883
+    - path: config/config.yaml
+      hash: md5
+      md5: d3beae4ec20de2bfcb4bc61d1ea1fbd3
+      size: 2998
+    - path: src/gpheat/data/slicing.py
+      hash: md5
+      md5: d05c73082350598287447122c8b79289
+      size: 1344
+    - path: src/gpheat/evaluation/eval_gpy.py
+      hash: md5
+      md5: 1de16d249648b4e9888d141ae45dca3a
+      size: 3433
+    - path: src/gpheat/models/checkpoints.py
+      hash: md5
+      md5: af9df723b3edfbad27dbc0edf6592cc5
+      size: 503
+    - path: src/gpheat/models/gpy_gp.py
+      hash: md5
+      md5: 172ae9db43e4d1f0155b7ce39432bb55
+      size: 3472
+    - path: src/gpheat/plot/gpy_results.py
+      hash: md5
+      md5: 33cfaa8946155733134528a8fdd59fba
+      size: 2501
+    - path: src/gpheat/utils/physics.py
+      hash: md5
+      md5: 8b3329c71e9f6fad4fa4c1e30f42e23e
+      size: 669
+    outs:
+    - path: reports/eval/charge
+      hash: md5
+      md5: 4fd01d74108c9296f06493c6c818904e.dir
+      size: 524910
+      nfiles: 9
+  eval_discharge:
+    cmd: set PYTHONPATH=src && python -m gpheat.cli eval-gpy --mode discharge
+    deps:
+    - path: artifacts/models/discharge_gpy.pkl
+      hash: md5
+      md5: 0334ba4c175fef7c6e0650248ff3c92b
+      size: 548437408
+    - path: artifacts/test/discharge_test.csv
+      hash: md5
+      md5: def1be54c4cd536fd743e4f2e5facd8d
+      size: 4031784
+    - path: config/config.yaml
+      hash: md5
+      md5: d3beae4ec20de2bfcb4bc61d1ea1fbd3
+      size: 2998
+    - path: src/gpheat/data/slicing.py
+      hash: md5
+      md5: 97e4ded97bdb47e8aa2b85efa5919e91
+      size: 1148
+    - path: src/gpheat/evaluation/eval_gpy.py
+      hash: md5
+      md5: 11e6ea3315183a009b5011b7bce7a041
+      size: 3282
+    - path: src/gpheat/models/checkpoints.py
+      hash: md5
+      md5: af9df723b3edfbad27dbc0edf6592cc5
+      size: 503
+    - path: src/gpheat/models/gpy_gp.py
+      hash: md5
+      md5: 172ae9db43e4d1f0155b7ce39432bb55
+      size: 3472
+    - path: src/gpheat/plot/gpy_results.py
+      hash: md5
+      md5: 33cfaa8946155733134528a8fdd59fba
+      size: 2501
+    - path: src/gpheat/utils/physics.py
+      hash: md5
+      md5: 8b3329c71e9f6fad4fa4c1e30f42e23e
+      size: 669
+    outs:
+    - path: reports/eval/discharge
+      hash: md5
+      md5: d30bf2dfc496766c24855d4ca321081b.dir
+      size: 487359
+      nfiles: 9

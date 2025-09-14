@@ -5,7 +5,7 @@ def get_logger(name: str = "gpheat", log_file: Path | None = None) -> logging.Lo
     logger = logging.getLogger(name)
     if logger.handlers:  # already configured
         return logger
-
+    logger.propagate = False
     logger.setLevel(logging.INFO)
     formatter = logging.Formatter("[%(asctime)s] %(levelname)s: %(message)s")
 
