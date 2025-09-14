@@ -6,19 +6,23 @@ build-backend = "setuptools.build_meta"
 name = "gpheat"
 version = "0.1.0"
 description = "Modular codebase for battery GP + PyBaMM experiments"
-requires-python = ">=3.11"
+requires-python = ">=3.10"
 dependencies = [
+    "casadi>=3.6.7,<3.8",
+    "pybamm>=24.6",
     "numpy",
     "pandas",
     "matplotlib",
     "scikit-learn",
     "pyyaml",
     "tqdm",
-    "pybamm",
     "gpytorch",
     "torch",
     "click",
+    "dvc",
+    "mlflow<3"
 ]
+
 
 [tool.setuptools.packages.find]
 where = ["src"]

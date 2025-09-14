@@ -2,6 +2,9 @@ from __future__ import annotations
 from typing import Any, Dict, List
 import numpy as np
 import pybamm
+from gpheat.logger import get_logger
+
+logger = get_logger("gpheat.simulate")
 
 def _initial_concentrations_for_mode(param: pybamm.ParameterValues, mode: str) -> None:
     if mode == "Charge":
@@ -41,12 +44,14 @@ def run_experiment_grid(cfg: Dict[str, Any]) -> List[list]:
     for tempC in temps:
         for c_rate in c_rates:
             for mode in modes:
+                
                 param = pybamm.ParameterValues("Marquis2019")
                 param["Initial temperature [K]"] = tempC + 273.15
                 param["Ambient temperature [K]"] = tempC + 273.15
                 h = param.get("Total heat transfer coefficient [W.m-2.K-1]")
 
                 stop_v = stop_v_charge if mode == "Charge" else stop_v_discharge
+                logger.info(f"Starting experiment grid simulation: {mode} at {c_rate}C until {stop_v} V")
                 step_str = f"{mode} at {c_rate}C until {stop_v} V"
                 experiment = pybamm.Experiment([step_str])
 

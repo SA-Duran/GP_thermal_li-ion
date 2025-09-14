@@ -1,11 +1,14 @@
 import click
-from .config import load_config, get_paths
-from .pipeline import run_pipeline
-from .experiments.generate_data import generate_and_save
+from gpheat.config import load_config, get_paths
+from gpheat.pipeline import run_pipeline
+from gpheat.experiments.generate_data import generate_and_save
+from gpheat.logger import get_logger
+
+logger = get_logger("gpheat", log_file="gpheat.log")
 
 @click.group()
 def cli():
-    """Command-line interface for thesis_battery."""
+    """Command-line interface for gpheat."""
 
 @cli.command()
 @click.option("--config", default="config/config.yaml", help="Path to config YAML.")

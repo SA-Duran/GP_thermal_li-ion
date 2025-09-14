@@ -9,3 +9,4 @@ gpytorch
 torch
 click
 dvc
+mlflow<3

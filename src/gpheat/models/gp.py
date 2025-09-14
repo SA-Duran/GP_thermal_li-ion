@@ -19,7 +19,7 @@ class GPRegressor:
         self.likelihood = gpytorch.likelihoods.GaussianLikelihood()
         self.model = None
 
-    def fit(self, X, y, iters: int = 50):
+    def fit(self, X, y, iters: int = 30):
         X = torch.tensor(X, dtype=torch.float32)
         y = torch.tensor(y, dtype=torch.float32)
         self.model = _GPModel(X, y, self.likelihood)

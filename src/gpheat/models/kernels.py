@@ -1,4 +1,3 @@
-import torch
 import gpytorch
 
 def rbf_kernel():
