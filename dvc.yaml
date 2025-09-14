@@ -1,0 +1,9 @@
+stages:
+  train:
+    cmd: python -m thesis_battery.cli run --config config/config.yaml --root .
+    deps:
+    - config/config.yaml
+    - src/thesis_battery
+    outs:
+    - reports/metrics.json
+    - reports/figures/prediction_test.png
