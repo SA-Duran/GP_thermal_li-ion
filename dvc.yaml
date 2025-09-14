@@ -1,9 +1,17 @@
 stages:
-  train:
-    cmd: python -m thesis_battery.cli run --config config/config.yaml --root .
+  data:
+    cmd: python -m gpheat.cli gen-data --config config/config.yaml --root .
     deps:
-    - config/config.yaml
-    - src/thesis_battery
+      - config/config.yaml
+      - src/gpheat/simulate/pybamm_model.py
+      - src/gpheat/experiments/generate_data.py
     outs:
-    - reports/metrics.json
-    - reports/figures/prediction_test.png
+      - artifacts/datasets
+  train:
+    cmd: python -m gpheat.cli run --config config/config.yaml --root .
+    deps:
+      - config/config.yaml
+      - src/gpheat
+    outs:
+      - reports/metrics.json
+      - reports/figures/prediction_test.png
