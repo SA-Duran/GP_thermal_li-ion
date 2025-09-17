@@ -5,7 +5,7 @@ from typing import Dict, Any, Tuple
 import numpy as np
 import pandas as pd
 import GPy
-
+from typing import Optional
 from gpheat.logger import get_logger
 
 logger = get_logger(__name__)
@@ -76,3 +76,32 @@ def metrics(y_true: np.ndarray, y_pred_mean: np.ndarray, model: GPy.core.GP) -> 
 def predict(model: GPy.core.GP, X: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     mu, var = model.predict(X)
     return mu, var
+
+# === NEW: data-driven hyperparameter bounds ===
+def hp_bounds_from_data(df: pd.DataFrame, features: list[str], target: str) -> dict:
+    # feature scales from 1st–99th percentiles
+    p01 = df[features].quantile(0.01)
+    p99 = df[features].quantile(0.99)
+    scale = (p99 - p01).replace(0, 1e-12).values  # avoid zeros
+    # lengthscales in same units as inputs
+    k1_ls_lo = scale * 0.1
+    k1_ls_hi = scale * 10.0
+    # first feature is Vdot
+    kV_ls_lo = float(k1_ls_lo[0])
+    kV_ls_hi = float(k1_ls_hi[0])
+
+    # output variance heuristics
+    y = df[[target]].to_numpy().flatten()
+    vy = float(np.var(y))
+    var_lo = max(vy * 1e-2, 1e-10)
+    var_hi = max(vy * 10.0, 1e-5)
+
+    bounds = {
+        "kV_lengthscale": [kV_ls_lo, kV_ls_hi],
+        "kV_variance":    [var_lo, var_hi],
+        "k1_lengthscales":[[float(a), float(b)] for a,b in zip(k1_ls_lo[1:], k1_ls_hi[1:])],
+        "k1_variance":    [var_lo, var_hi],
+        "noise_variance": [1e-12, max(vy, 1e-9)]
+    }
+    return bounds
+

@@ -4,7 +4,7 @@ from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-
+from gpheat.utils.labels import TARGET_LABEL
 from gpheat.utils.physics import rho_eff_marquis2019
 from gpheat.logger import get_logger
 
@@ -21,7 +21,7 @@ def plot_dt_dt(df: pd.DataFrame, y_mean: np.ndarray, y_std: np.ndarray,
     plt.plot(t, y_true, label="Model dT/dt", color="red")
     if lim_dTdt:
         plt.ylim(lim_dTdt)
-    plt.xlabel("Time [s]"); plt.ylabel("Temperature derivative [K/s]")
+    plt.xlabel("Time [s]"); plt.ylabel(TARGET_LABEL) 
     plt.title(title); plt.grid(True); plt.legend()
     out_png.parent.mkdir(parents=True, exist_ok=True)
     plt.savefig(out_png, dpi=150, bbox_inches="tight"); plt.close()

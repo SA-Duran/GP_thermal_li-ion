@@ -21,9 +21,10 @@ dependencies = [
     "click",
     "dvc",
     "mlflow<3",
-    "gpy"
-]
-
+    "gpy",
+    "SALib",
+    "tqdm",
+    ]
 
 [tool.setuptools.packages.find]
 where = ["src"]

@@ -213,3 +213,6 @@ artifacts/*
 venv/
 */.conda/
 */venv/
+#models in sobol
+# ignore mlruns too many files
+mlruns/*

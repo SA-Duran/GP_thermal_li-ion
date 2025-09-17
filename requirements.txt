@@ -11,3 +11,5 @@ click
 dvc
 mlflow<3
 gpy
+SALib
+tqdm

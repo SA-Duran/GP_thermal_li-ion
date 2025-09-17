@@ -74,3 +74,79 @@ stages:
       - src/gpheat/models/gpy_gp.py
     outs:
       - reports/eval/discharge
+
+  sobol_hp_charge_mult:
+    cmd: set PYTHONPATH=src && python -m gpheat.cli sobol-hp --mode charge --kernel mult
+    deps:
+      - config/config.yaml
+      - src/gpheat/sensitivity/sobol_hp.py
+      - src/gpheat/models/kernels.py
+      - src/gpheat/models/gpy_gp.py
+      - src/gpheat/models/checkpoints.py
+      - src/gpheat/plot/sobol_plots.py
+      - artifacts/datasets/tspm_grid_v4_0.csv
+    metrics:
+      - reports/sobol/hp/charge/mult/sensitivity_charge_mult_hp.csv
+    plots:
+      - reports/sobol/hp/charge/mult/*S1_bar.png
+      - reports/sobol/hp/charge/mult/*ST_bar.png
+      - reports/sobol/hp/charge/mult/*heatmap.png
+    outs:
+      - reports/sobol/hp/charge/mult
+
+  sobol_hp_discharge_mult:
+    cmd: set PYTHONPATH=src && python -m gpheat.cli sobol-hp --mode discharge --kernel mult
+    deps:
+      - config/config.yaml
+      - src/gpheat/sensitivity/sobol_hp.py
+      - src/gpheat/models/kernels.py
+      - src/gpheat/models/gpy_gp.py
+      - src/gpheat/models/checkpoints.py
+      - src/gpheat/plot/sobol_plots.py      
+      - artifacts/datasets/tspm_grid_v4_0.csv
+    metrics:
+      - reports/sobol/hp/discharge/mult/sensitivity_discharge_mult_hp.csv
+    plots:
+      - reports/sobol/hp/discharge/mult/*S1_bar.png
+      - reports/sobol/hp/discharge/mult/*ST_bar.png
+      - reports/sobol/hp/discharge/mult/*heatmap.png      
+    outs:
+      - reports/sobol/hp/discharge/mult
+
+  # features Sobol uses a saved model; you can depend on a fit stage explicitly if you want the chain
+  sobol_x_charge:
+    cmd: set PYTHONPATH=src && python -m gpheat.cli sobol-x --mode charge --model artifacts/models/charge_mult.pkl
+    deps:
+      - config/config.yaml
+      - src/gpheat/sensitivity/sobol_features.py
+      - src/gpheat/models/checkpoints.py
+      - src/gpheat/plot/sobol_plots.py
+      - artifacts/models/charge_mult.pkl
+      - artifacts/datasets/tspm_grid_v4_0.csv
+    metrics:
+      - reports/sobol/features/charge/sensitivity_charge_features.csv
+    plots:
+      - reports/sobol/features/charge/*S1_bar.png
+      - reports/sobol/features/charge/*ST_bar.png
+      - reports/sobol/features/charge/*heatmap.png
+    outs:
+      - reports/sobol/features/charge
+
+  sobol_x_discharge:
+    cmd: set PYTHONPATH=src && python -m gpheat.cli sobol-x --mode discharge --model artifacts/models/discharge_mult.pkl
+    deps:
+      - config/config.yaml
+      - src/gpheat/sensitivity/sobol_features.py
+      - src/gpheat/models/checkpoints.py
+      - src/gpheat/plot/sobol_plots.py      
+      - artifacts/models/discharge_mult.pkl
+      - artifacts/datasets/tspm_grid_v4_0.csv
+    metrics:
+      - reports/sobol/features/discharge/sensitivity_discharge_features.csv
+    plots:
+      - reports/sobol/features/discharge/*S1_bar.png
+      - reports/sobol/features/discharge/*ST_bar.png
+      - reports/sobol/features/discharge/*heatmap.png
+    outs:
+      - reports/sobol/features/discharge
+

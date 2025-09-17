@@ -7,7 +7,8 @@ paths:
   figures_dir: reports/figures
   metrics_file: reports/metrics.json
   models_dir: artifacts/models   
-  test_dir: artifacts/test    
+  test_dir: artifacts/test
+  sobol_dir: reports/sobol      
 
 experiment:
   seed: 42
@@ -53,6 +54,8 @@ gpy:
     k1_lengthscales: [2.9e-5, 1.9e-3, 8.0e-5, 1.0e-6]
     k1_variance: 1.0e-5
     noise_variance: 0.0
+  
+  noise_variance: 0.0
 
   # Bounds for a quick local search (later you can derive from training-set ranges)
   search_bounds:
@@ -66,6 +69,14 @@ gpy:
     charge: "charge_gpy.pkl"              # default saved model name
     discharge: "discharge_gpy.pkl"
 
+  kernels:
+    # allow selecting in CLI
+    #   mult  = kV * k1
+    #   add   = kV + k1
+    #   mixed = Linear(kV) + (RBF(kV) * RBF(k1))
+    options: ["mult", "add", "mixed"]
+    default: "mult"
+
 test_conditions:
   # Each item: {mode, c_rate, temperature_C}
   charge:
@@ -78,3 +89,19 @@ test_conditions:
     - { mode: "Discharge", c_rate: 0.4,  temperature_C: 20 }
     - { mode: "Discharge", c_rate: 0.9,  temperature_C: 35 }
     - { mode: "Discharge", c_rate: 1.0,  temperature_C: 10 }
+
+sobol:
+  n_samples: 256          # Saltelli base samples (can tune per run)
+  refit_iters: 1         # optimizer steps per Sobol hyperparam sample
+  random_seed: 42
+  # feature grouping for grouped Sobol (voltage vs overpotentials)
+  #hp_exact_max_n: 2000    # if N > this, use sparse GP automatically
+  #hp_inducing: 512        # number of inducing points for sparse GP
+  hp_save_every: 0        # set >0 to save every k-th sampled model; 0 => don't save
+  groups:
+    voltage: ["Terminal voltage time derivative [V/s]"]
+    overpotentials:
+      - "Reaction overpotential time derivative [V/s]"
+      - "Electrode concentration overpotential time derivative [V/s]"
+      - "Electrolyte concentration overpotential time derivative [V/s]"
+      - "Electrolyte ohmic overpotential time derivative [V/s]"
