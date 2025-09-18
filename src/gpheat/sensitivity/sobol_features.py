@@ -56,6 +56,7 @@ def feature_groups(cfg: Dict[str, Any], features: list[str]) -> List[int] | None
             next_gid += 1
     return groups
 
+
 def sobol_features(
     *,
     cfg: Dict[str, Any],
@@ -65,7 +66,8 @@ def sobol_features(
     out_dir: Path,
     n_samples: int,
     seed: int = 42,
-    experiment_name: str = "gpheat_sobol_features"
+    experiment_name: str = "gpheat_sobol_features",
+    use_groups: bool = False,  
 ) -> Path:
     out_dir.mkdir(parents=True, exist_ok=True)
     df = load_dataframe(str(csv_path))
@@ -73,7 +75,8 @@ def sobol_features(
     names, lo, hi = feature_bounds_from_data(df, feats)
     gp = load_pickle(model_path)
     
-    groups = feature_groups(cfg, feats)  # ahora es List[int] o None
+    groups = feature_groups(cfg, feats) if use_groups else None
+    
     if groups is not None and len(groups) != len(names):
         raise ValueError(f"groups length {len(groups)} != names length {len(names)}")
 
@@ -144,34 +147,32 @@ def sobol_features(
         "ST": ST, "ST_conf": STc,
     })
 
-    out_csv = out_dir / f"sensitivity_{mode}_features.csv"
+    suffix = "features" if use_groups else "features_individual"
+    out_csv = out_dir / f"sensitivity_{mode}_{suffix}.csv"
     summary.to_csv(out_csv, index=False)
     logger.info(f"Sobol features summary {out_csv}")
-
-
     
-    bar_s1 = out_dir / f"sensitivity_{mode}_features_S1_bar.png"
-    bar_st = out_dir / f"sensitivity_{mode}_features_ST_bar.png"
-    heat   = out_dir / f"sensitivity_{mode}_features_heatmap.png"
+    title_base = f"Sobol {'(grouped)' if use_groups else '(individual)'} — {mode}"
+    bar_s1 = out_dir / f"sensitivity_{mode}_{suffix}_S1_bar.png"
+    bar_st = out_dir / f"sensitivity_{mode}_{suffix}_ST_bar.png"
+    heat   = out_dir / f"sensitivity_{mode}_{suffix}_heatmap.png"
+    
 
-    try:
-        plot_sobol_bars(out_csv, bar_s1, metric="S1", title=f"Sobol S1 — {mode} (X)")
-        plot_sobol_bars(out_csv, bar_st, metric="ST", title=f"Sobol ST — {mode} (X)")
-        plot_sobol_heatmap(out_csv, heat, title=f"Sobol S1/ST — {mode} (X)")
-    except:
-        plot_sobol_bars_df(out_csv, bar_s1, metric="S1", title=f"Sobol S1 — {mode} (X)")
-        plot_sobol_bars_df(out_csv, bar_st, metric="ST", title=f"Sobol ST — {mode} (X)")
-        plot_sobol_heatmap_df(out_csv, heat, title=f"Sobol S1/ST — {mode} (X)")
+    plot_sobol_bars_df(summary, bar_s1, metric="S1", title=f"{title_base} | S1")
+    plot_sobol_bars_df(summary, bar_st, metric="ST", title=f"{title_base} | ST")
+    plot_sobol_heatmap_df(summary, heat, title=f"{title_base} | S1/ST")
+
     # Si MLflow está activo, sube las imágene
     
     # MLflow (opcional)
-    run = try_mlflow_start_run("gpheat_sobol_features", run_name=f"{mode}-features",
-                            tags={"mode": mode, "type": "sobol_features"})
+    run = try_mlflow_start_run("gpheat_sobol_features", run_name=f"{mode}-{'grouped' if use_groups else 'individual'}",
+                               tags={"mode": mode, "type": f"sobol_features_{'grouped' if use_groups else 'individual'}"})
+    try_mlflow_log_artifact(out_csv)
     try_mlflow_log_artifact(bar_s1)
     try_mlflow_log_artifact(bar_st)
     try_mlflow_log_artifact(heat)
     
     if run:
-        import mlflow; mlflow.end_run()    
+        import mlflow; mlflow.end_run()   
     
     return out_csv

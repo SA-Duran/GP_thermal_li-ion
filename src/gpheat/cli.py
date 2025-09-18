@@ -184,17 +184,40 @@ def sobol_hp_cmd(mode, kernel, config, root):
 # === Sobol features (predict using saved model) ===
 @click.command("sobol-x")
 @click.option("--mode", type=click.Choice(["charge","discharge"]), required=True)
-@click.option("--model", required=True, help="Path to saved .pkl to analyze")
+@click.option("--model", default=None, help="Path to saved .pkl (defaults to config gpy.models.<mode>)")
+@click.option("--csv", default=None, help="CSV to draw feature ranges/prediction set (defaults to TRAIN csv)")
+@click.option("--individual", is_flag=True, help="Compute Sobol per feature (no grouping).")  # <— NEW
 @click.option("--config", default="config/config.yaml")
 @click.option("--root", default=".")
-def sobol_x_cmd(mode, model, config, root):
-    cfg = load_config(config); paths = get_paths(cfg, root)
-    csv_path = Path(cfg["gpy"]["dataset"]["charge_csv" if mode=="charge" else "discharge_csv"])
-    out_dir = Path(cfg["paths"]["sobol_dir"]) / "features" / mode
-    n = int(cfg["sobol"]["n_samples"])*2; seed = int(cfg["sobol"]["random_seed"])
+def sobol_x_cmd(mode, model, csv, individual, config, root):
+    cfg = load_config(config)
+    paths = get_paths(cfg, root)
+    feats = cfg["gpy"]["features"]
+    
+
+    default_model = paths.artifacts_root / "models" / cfg["gpy"]["models"][mode]
+    model_path = Path(model) if model else default_model
+
+    # By default, use TRAIN for ranges/prediction set
+    #default_csv = Path(cfg["paths"]["test_dir"]) / ("charge_test.csv" if individual else "discharge_test.csv")
+    default_csv = Path(cfg["gpy"]["dataset"]["charge_csv"])  if mode=="charge" else Path(cfg["gpy"]["dataset"]["charge_csv"])
+    csv_path = Path(csv) if csv else default_csv
+
+    # Different output folders to avoid overwriting grouped results
+    base = Path(cfg["paths"]["sobol_dir"]) / ("features_individual" if individual else "features") / mode
+
+    n = int(cfg["sobol"]["n_samples"])
+    seed = int(cfg["sobol"]["random_seed"])
+
     sobol_features(
-        cfg=cfg, mode=mode, model_path=Path(model), csv_path=csv_path,
-        out_dir=out_dir, n_samples=n, seed=seed
+        cfg=cfg,
+        mode=mode,
+        model_path=model_path,
+        csv_path=csv_path,
+        out_dir=base,
+        n_samples=n*2,
+        seed=seed,
+        use_groups=not individual,   # <— key line
     )
     
 @click.command("plot-sobol")

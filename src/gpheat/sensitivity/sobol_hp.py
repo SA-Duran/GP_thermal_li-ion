@@ -67,7 +67,8 @@ def sobol_hyperparams(
         ds_te = ds_tr  # fallback to TRAIN if no test provided
         logger.warning("sobol-hp: no eval_csv_path provided or not found; using TRAIN for metric")
 
-    
+
+
     names, lo, hi = _pack_bounds(bnd, len(feats))
     D = len(names)
 

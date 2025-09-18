@@ -114,12 +114,11 @@ stages:
       - reports/sobol/hp/discharge/mult
 
   # features Sobol uses a saved model; you can depend on a fit stage explicitly if you want the chain
-  sobol_x_charge:
-    cmd: set PYTHONPATH=src && python -m gpheat.cli sobol-x --mode charge --model artifacts/models/charge_mult.pkl
+  sobol_x_charge_grouped:
+    cmd: set PYTHONPATH=src && python -m gpheat.cli sobol-x --mode charge
     deps:
       - config/config.yaml
       - src/gpheat/sensitivity/sobol_features.py
-      - src/gpheat/models/checkpoints.py
       - src/gpheat/plot/sobol_plots.py
       - artifacts/models/charge_mult.pkl
       - artifacts/datasets/tspm_grid_v4_0.csv
@@ -132,7 +131,24 @@ stages:
     outs:
       - reports/sobol/features/charge
 
-  sobol_x_discharge:
+  sobol_x_charge_individual:
+    cmd: set PYTHONPATH=src && python -m gpheat.cli sobol-x --mode charge --individual
+    deps:
+      - config/config.yaml
+      - src/gpheat/sensitivity/sobol_features.py
+      - src/gpheat/plot/sobol_plots.py
+      - artifacts/models/charge_mult.pkl
+      - artifacts/datasets/tspm_grid_v4_0.csv
+    metrics:
+      - reports/sobol/features_individual/charge/sensitivity_charge_features_individual.csv
+    plots:
+      - reports/sobol/features_individual/charge/*S1_bar.png
+      - reports/sobol/features_individual/charge/*ST_bar.png
+      - reports/sobol/features_individual/charge/*heatmap.png
+    outs:
+      - reports/sobol/features_individual/charge
+
+  sobol_x_discharge_grouped:
     cmd: set PYTHONPATH=src && python -m gpheat.cli sobol-x --mode discharge --model artifacts/models/discharge_mult.pkl
     deps:
       - config/config.yaml
