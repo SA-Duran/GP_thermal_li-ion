@@ -92,7 +92,7 @@ test_conditions:
 
 sobol:
   n_samples: 256          # Saltelli base samples (can tune per run)
-  refit_iters: 1         # optimizer steps per Sobol hyperparam sample
+  refit_iters: 20         # optimizer steps per Sobol hyperparam sample
   random_seed: 42
   # feature grouping for grouped Sobol (voltage vs overpotentials)
   #hp_exact_max_n: 2000    # if N > this, use sparse GP automatically
